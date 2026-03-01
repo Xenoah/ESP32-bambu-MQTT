@@ -13,6 +13,8 @@ class DisplayManager {
  public:
   bool begin(AppState& state);
   void render(const AppState& state);
+  // Terminal-style log shown during startup while Wi-Fi / MQTT connect.
+  void renderStartup(const AppState& state);
 
  private:
   void renderDashboard(const AppState& state);

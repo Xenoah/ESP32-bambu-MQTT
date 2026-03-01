@@ -251,5 +251,11 @@ void PrinterComm::setFatalState(AppState& state, const String& reason) {
 }
 
 void PrinterComm::requestRender(AppState& state) {
+  if (state.immediateRender) {
+    // Startup phase: append the current event to the terminal log and push
+    // the frame immediately (the main loop hasn't started yet).
+    state.appendLog(state.lastEvent);
+    state.immediateRender(state);
+  }
   state.displayDirty = true;
 }

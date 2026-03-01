@@ -144,6 +144,48 @@ void DisplayManager::renderFatalScreen(const AppState& state) {
   }
 }
 
+void DisplayManager::renderStartup(const AppState& state) {
+  if (!ready_) {
+    return;
+  }
+
+  lgfx::LovyanGFX& c =
+      spriteReady_ ? static_cast<lgfx::LovyanGFX&>(sprite_)
+                   : static_cast<lgfx::LovyanGFX&>(lcd_);
+
+  c.setTextWrap(false);
+  c.fillScreen(kColorBlack);
+
+  // ── Header (same layout as the splash screen) ───────────────────────────
+  c.setTextSize(2);
+  drawText(c, 16, 24, "BAMBU MQTT", kColorWhite, kColorBlack);
+  c.setTextSize(1);
+  drawText(c, 16, 56, "ESP32-S3-BOX-LITE", kColorCyan, kColorBlack);
+  c.drawFastHLine(8, 70, lcd_.width() - 16, kColorGray);
+
+  // ── Terminal log area ───────────────────────────────────────────────────
+  // Each line: green ">" prompt + message text.
+  // The most-recent entry is white; older entries are dimmed to gray.
+  constexpr int16_t kLogStartY = 78;
+  constexpr int16_t kLineH     = 10;  // 8px char + 2px gap
+
+  c.setTextSize(1);
+  for (uint8_t i = 0; i < state.logCount; ++i) {
+    const int16_t y = kLogStartY + static_cast<int16_t>(i) * kLineH;
+    if (y + 8 > lcd_.height()) {
+      break;
+    }
+    const bool    isLatest   = (i == state.logCount - 1);
+    const uint16_t textColor = isLatest ? kColorWhite : kColorGray;
+    drawText(c,  4, y, ">",                  kColorGreen, kColorBlack);
+    drawText(c, 14, y, state.logLines[i],    textColor,   kColorBlack);
+  }
+
+  if (spriteReady_) {
+    sprite_.pushSprite(0, 0);
+  }
+}
+
 void DisplayManager::drawField(lgfx::LovyanGFX& c, int16_t y, const char* label,
                                const String& value, uint16_t valueColor) {
   drawText(c,  8, y, label, kColorCyan,  kColorBlack);
