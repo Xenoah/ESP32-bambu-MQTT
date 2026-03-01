@@ -1,18 +1,35 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "AppConfig.h"
+#include "AppState.h"
+#include "DisplayManager.h"
+#include "PrinterComm.h"
+
+namespace {
+
+AppState appState;
+DisplayManager displayManager;
+PrinterComm printerComm;
+
+}  // namespace
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  delay(200);
+
+  displayManager.begin(appState);
+  printerComm.begin(appState);
+
+  for (;;) {
+    printerComm.tick(appState);
+
+    if (appState.displayDirty) {
+      displayManager.render(appState);
+      appState.displayDirty = false;
+    }
+
+    delay(appState.halted ? AppConfig::kHaltedLoopDelayMs : AppConfig::kActiveLoopDelayMs);
+  }
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+void loop() {}
