@@ -9,7 +9,7 @@ constexpr char kWifiPassword[] = "password";
 
 constexpr char kPrinterHost[] = "printers_ip";
 constexpr uint16_t kPrinterPort = 8883;
-constexpr char kPrinterUser[] = "username";
+constexpr char kPrinterUser[] = "bblp";  // Fixed value for Bambu Lab LAN MQTT
 constexpr char kPrinterPassword[] = "access_code";
 constexpr char kPrinterSerial[] = "serialnumber";
 

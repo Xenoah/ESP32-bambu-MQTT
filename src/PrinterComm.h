@@ -21,18 +21,22 @@ class PrinterComm {
   void setupWiFi(AppState& state);
   void ensureMqtt(AppState& state);
   void onMessage(char* topic, byte* payload, unsigned int length);
-  void startHoming(AppState& state);
-  void queryPosition(AppState& state);
-  bool publishJson(AppState& state, JsonDocument& doc, const char* okEvent, const char* failEvent);
+  // Sends {"pushing":{"command":"pushall"}} to request a full status snapshot.
+  // Replaces the removed startHoming() / queryPosition() which were unsafe and
+  // used incorrect Bambu Lab command names/structures.
+  void requestPushAll(AppState& state);
+  bool publishJson(AppState& state, JsonDocument& doc, const char* okEvent,
+                   const char* failEvent);
   void setFatalState(AppState& state, const String& reason);
   void requestRender(AppState& state);
 
   static PrinterComm* instance_;
 
   WiFiClientSecure tlsClient_;
-  PubSubClient mqttClient_;
-  AppState* state_ = nullptr;
+  PubSubClient     mqttClient_;
+  AppState*        state_      = nullptr;
+  uint32_t         sequenceId_ = 0;  // monotonic counter for sequence_id field
   char topicSubscribe_[96] = {};
-  char topicPublish_[96] = {};
-  char mqttClientId_[64] = {};
+  char topicPublish_[96]   = {};
+  char mqttClientId_[64]   = {};
 };
