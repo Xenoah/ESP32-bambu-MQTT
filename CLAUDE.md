@@ -206,10 +206,17 @@ MAC address was read before the Wi-Fi stack was initialized, which can return ze
 - Upload target: `COM4`
 - Build status post-fix: pending verification
 
+### Credentials / Secrets Separation
+
+- `src/AppSecrets.h` — user-created from the template, excluded from git via `.gitignore`.
+- `src/AppSecrets.h.template` — committed to git, contains only placeholder values.
+- `src/AppConfig.h` — committed to git. Uses `using AppSecrets::` to pull credentials into the `AppConfig` namespace. All existing call sites (`AppConfig::kWifiSsid` etc.) work without modification.
+- Credentials: Wi-Fi SSID/password, printer host IP, Access Code, serial number.
+- Non-secrets kept in `AppConfig.h`: `kPrinterUser` ("bblp"), `kPrinterPort` (8883), all timing constants.
+
 ### Known Notes
 
 - Uses Wi-Fi TLS with `setInsecure()` and MQTT over port `8883`.
-- Printer credentials and host are placeholders until the user edits `src/AppConfig.h`.
-- `kPrinterUser` is now pre-set to `"bblp"` (Bambu Lab LAN fixed value).
-- `kPrinterPassword` must be set to the printer's **Access Code** (shown in the printer's LAN settings screen).
-- If the screen remains blank after this fix, suspect a LovyanGFX autodetect failure — next step is a manual panel class configuration.
+- `kPrinterUser` is pre-set to `"bblp"` (Bambu Lab LAN MQTT fixed value — do not change).
+- `kPrinterPassword` must be set to the printer's **Access Code** (shown in the printer's network/LAN settings screen).
+- If the screen remains blank after the AUTODETECT fix, suspect a runtime panel detection failure — next step is a manual `LGFX` class configuration with explicit SPI pin assignments.
